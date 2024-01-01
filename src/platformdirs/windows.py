@@ -144,20 +144,17 @@ class Windows(PlatformDirsABC):
 
 def get_win_folder_from_env_vars(csidl_name: str) -> str:
     """Get folder from environment variables."""
-    result = get_win_folder_if_csidl_name_not_env_var(csidl_name)
-    if result is not None:
+    if (result := get_win_folder_if_csidl_name_not_env_var(csidl_name)) is not None:
         return result
 
-    env_var_name = {
+    if (env_var_name := {
         "CSIDL_APPDATA": "APPDATA",
         "CSIDL_COMMON_APPDATA": "ALLUSERSPROFILE",
         "CSIDL_LOCAL_APPDATA": "LOCALAPPDATA",
-    }.get(csidl_name)
-    if env_var_name is None:
+    }.get(csidl_name)) is None:
         msg = f"Unknown CSIDL name: {csidl_name}"
         raise ValueError(msg)
-    result = os.environ.get(env_var_name)
-    if result is None:
+    if (result := os.environ.get(env_var_name)) is None:
         msg = f"Unset environment variable: {env_var_name}"
         raise ValueError(msg)
     return result
@@ -189,7 +186,7 @@ def get_win_folder_from_registry(csidl_name: str) -> str:
     This is a fallback technique at best. I'm not sure if using the registry for these guarantees us the correct answer
     for all CSIDL_* names.
     """
-    shell_folder_name = {
+    if (shell_folder_name := {
         "CSIDL_APPDATA": "AppData",
         "CSIDL_COMMON_APPDATA": "Common AppData",
         "CSIDL_LOCAL_APPDATA": "Local AppData",
@@ -198,8 +195,7 @@ def get_win_folder_from_registry(csidl_name: str) -> str:
         "CSIDL_MYPICTURES": "My Pictures",
         "CSIDL_MYVIDEO": "My Video",
         "CSIDL_MYMUSIC": "My Music",
-    }.get(csidl_name)
-    if shell_folder_name is None:
+    }.get(csidl_name)) is None:
         msg = f"Unknown CSIDL name: {csidl_name}"
         raise ValueError(msg)
     if sys.platform != "win32":  # only needed for mypy type checker to know that this code runs only on Windows
@@ -217,7 +213,7 @@ def get_win_folder_via_ctypes(csidl_name: str) -> str:
     # Use 'CSIDL_PROFILE' (40) and append the default folder 'Downloads' instead.
     # https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid
 
-    csidl_const = {
+    if (csidl_const := {
         "CSIDL_APPDATA": 26,
         "CSIDL_COMMON_APPDATA": 35,
         "CSIDL_LOCAL_APPDATA": 28,
@@ -227,8 +223,7 @@ def get_win_folder_via_ctypes(csidl_name: str) -> str:
         "CSIDL_MYMUSIC": 13,
         "CSIDL_DOWNLOADS": 40,
         "CSIDL_DESKTOPDIRECTORY": 16,
-    }.get(csidl_name)
-    if csidl_const is None:
+    }.get(csidl_name)) is None:
         msg = f"Unknown CSIDL name: {csidl_name}"
         raise ValueError(msg)
 
